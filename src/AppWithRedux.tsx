@@ -1,68 +1,107 @@
-import React, { ChangeEvent, useCallback, useEffect } from 'react';
+import React, { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Counter } from './components/counter/Counter';
 import { Set } from './components/set/Set';
-import { changeMaxValueAC, changeMinValueAC, clickAC, getLocalStorageAC } from './store/reducers/reducer';
+import { changeCounterValueAC, changeMaxValueAC, changeMinValueAC, incAC, resAC, setAC } from './store/reducers/reducer';
 import { AppRootStateType } from './store/store';
 
 
 export type CounterType = {
   counter: number,
-  buttonValue: string,
   minValue: number,
   maxValue: number,
-  mode: boolean,
-  invalid: boolean
 }
 
-function App() {
-  const buttonValue = useSelector<AppRootStateType, string>(state => state.buttonValue)
+export function AppWithRedux() {
   const counter = useSelector<AppRootStateType, number>(state => state.counter)
-  const mode = useSelector<AppRootStateType, boolean>(state => state.mode)
   const minValue = useSelector<AppRootStateType, number>(state => state.minValue)
   const maxValue = useSelector<AppRootStateType, number>(state => state.maxValue)
-  const invalid = useSelector<AppRootStateType, boolean>(state => state.invalid)
+  const [invalid, setInvalid] = useState(false)
+  const [editMode, setEditMode] = useState(false)
   const dispatch = useDispatch()
   
-  const changeMaxValue = useCallback((e: ChangeEvent<HTMLInputElement>) => { dispatch(changeMaxValueAC(e)) }, [])
-  const changeMinValue = useCallback((e: ChangeEvent<HTMLInputElement>) => { dispatch(changeMinValueAC(e)) }, [])
-  const click = useCallback((buttonValue: string) => { dispatch(clickAC(buttonValue)) }, [])
+  const changeMaxValue = (e: ChangeEvent<HTMLInputElement>) => {
+    if (+e.currentTarget.value <= minValue)  setInvalid(true)
+    else  {
+      setInvalid(false)
+      let newMaxValue = +e.currentTarget.value
+      dispatch(changeMaxValueAC(newMaxValue))
+    }
+  }
 
-  useEffect(() => { dispatch(getLocalStorageAC()) }, [])
+  const changeMinValue = (e: ChangeEvent<HTMLInputElement>) => {
+    if (+e.currentTarget.value >= maxValue)  setInvalid(true) 
+    else {
+      setInvalid(false) 
+      let newMinValue = +e.currentTarget.value
+      dispatch(changeMinValueAC(newMinValue))
+    }
+  }
+
+  const inc = useCallback(() => dispatch(incAC()), [])
+  const res = useCallback(() => dispatch(resAC()), [])
+  const toSet = useCallback(() => setEditMode(true), [])
+  const set = useCallback(() => {
+    dispatch(setAC())
+    setEditMode(false)
+  }, [])
+
+  useEffect(() => { 
+    let counterAsString = localStorage.getItem('counter')
+    let maxValueAsString = localStorage.getItem('maxValue')
+    let minValueAsString = localStorage.getItem('minValue')
+    let modeValueAsString = localStorage.getItem('modeValue')
+
+    if (counterAsString) {
+      let newCounterValue = JSON.parse(counterAsString)
+      dispatch(changeCounterValueAC(newCounterValue))
+    }
+
+    if (maxValueAsString) {
+      let newMaxValue = JSON.parse(maxValueAsString)
+      dispatch(changeMaxValueAC(newMaxValue))
+    }
+    
+    if (minValueAsString) {
+      let newMinValue = JSON.parse(minValueAsString)
+      dispatch(changeMinValueAC(newMinValue))
+    }
+    if (modeValueAsString) {
+      let newModeValue = JSON.parse(modeValueAsString)
+      setEditMode(newModeValue) 
+    }
+    }, [])
+
   useEffect(() => {
     localStorage.setItem('counter', JSON.stringify(counter)) 
     localStorage.setItem('maxValue', JSON.stringify(maxValue))  
     localStorage.setItem('minValue', JSON.stringify(minValue))
-    localStorage.setItem('modeValue', JSON.stringify(mode))       
-  }, [counter, maxValue, minValue, mode])
+    localStorage.setItem('modeValue', JSON.stringify(editMode))       
+  }, [counter, maxValue, minValue, editMode])
 
-  if(mode) {
-    return (
-        <Counter 
-          counter={counter} 
-          buttonValue={buttonValue} 
-          minValue={minValue}
-          maxValue={maxValue}
-          click={click}
-          changeMaxValue={changeMaxValue} 
-          changeMinValue={changeMinValue} 
-          invalid={invalid}
-        />
-    )
-  } else {
-    return(
-      <Set 
+
+  return editMode 
+  ? 
+    <Set 
+    counter={counter}   
+    minValue={minValue}
+    maxValue={maxValue}
+    invalid={invalid}
+    changeMaxValue={changeMaxValue} 
+    changeMinValue={changeMinValue} 
+    set={set}
+    />
+  :  
+    <Counter 
         counter={counter} 
-        buttonValue={buttonValue} 
         minValue={minValue}
         maxValue={maxValue}
-        click={click}
+        invalid={invalid}
+        toSet={toSet}
+        res={res}
+        inc={inc}
         changeMaxValue={changeMaxValue} 
         changeMinValue={changeMinValue} 
-        invalid={invalid}
       />
-    )
-  }
 }
-export default App;
 

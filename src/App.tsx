@@ -40,30 +40,30 @@ function App() {
   }
 
   if(mode) {
-    return (
-        <Counter 
-          counter={counter} 
-          buttonValue={buttonValue} 
-          minValue={minValue}
-          maxValue={maxValue}
-          click={click}
-          changeMaxValue={changeMaxValue} 
-          changeMinValue={changeMinValue} 
-          invalid={invalid}
-        />
+    return (<></>
+        // <Counter 
+        //   counter={counter} 
+        //   buttonValue={buttonValue} 
+        //   minValue={minValue}
+        //   maxValue={maxValue}
+        //   click={click}
+        //   changeMaxValue={changeMaxValue} 
+        //   changeMinValue={changeMinValue} 
+        //   invalid={invalid}
+        // />
     )
   } else {
-    return(
-      <Set 
-        counter={counter} 
-        buttonValue={buttonValue} 
-        minValue={minValue}
-        maxValue={maxValue}
-        click={click}
-        changeMaxValue={changeMaxValue} 
-        changeMinValue={changeMinValue} 
-        invalid={invalid}
-      />
+    return(<></>
+      // <Set 
+      //   counter={counter} 
+      //   buttonValue={buttonValue} 
+      //   minValue={minValue}
+      //   maxValue={maxValue}
+      //   click={click}
+      //   changeMaxValue={changeMaxValue} 
+      //   changeMinValue={changeMinValue} 
+      //   invalid={invalid}
+      // />
     )
   }
 }

@@ -2,98 +2,69 @@ import { ChangeEvent } from "react";
 import { CounterType } from "../../AppWithRedux";
 
 
-
-export type ClickActionType = {
-    type: 'CLICK'
-    buttonValue: string
-}
+export type IncActionType = { type: 'INC' }
+export type ResActionType = { type: 'RES' }
+export type SetActionType = { type: 'SET' }
 
 export type ChangeMaxValueActionType = {
     type: 'CHANGE-MAX-VALUE'
-    e: ChangeEvent<HTMLInputElement>
+    newMaxValue: number
 }
 
 export type ChangeMinValueActionType = {
     type: 'CHANGE-MIN-VALUE'
-    e: ChangeEvent<HTMLInputElement>
+    newMinValue: number
 }
 
-export type GetLocalStorageActionType = {
-    type: 'GET-LOCAL-STORAGE'
+export type ChangeCounterValueActionType = {
+    type: 'CHANGE-COUNTER-VALUE'
+    newCounterValue: number
 }
 
 
 const initialState: CounterType = {
     counter: 0,
-    buttonValue: "",
     minValue: 0,
     maxValue: 10,
-    mode: true,
-    invalid: false
 }
 
-type ActionsType = ClickActionType | ChangeMaxValueActionType | ChangeMinValueActionType | GetLocalStorageActionType 
+type ActionsType = IncActionType | ResActionType | SetActionType | ChangeMaxValueActionType | ChangeMinValueActionType | ChangeCounterValueActionType 
 
 export const reducer = (state: CounterType = initialState, action: ActionsType): CounterType => {
     switch(action.type) {
-        case 'CLICK': {
+        case 'INC': {
             const stateCopy = {...state}
-            if (action.buttonValue === "inc") {
-                if (stateCopy.counter < stateCopy.maxValue) stateCopy.counter = stateCopy.counter + 1
-                else stateCopy.counter = stateCopy.counter
-              } 
-              else if (action.buttonValue === "res") stateCopy.counter = stateCopy.minValue
-              else if (action.buttonValue === "set") stateCopy.mode = false
-              else {
-                stateCopy.counter = stateCopy.minValue
-                stateCopy.mode = true
-              }
+            if (stateCopy.counter < stateCopy.maxValue) stateCopy.counter = stateCopy.counter + 1
+            else stateCopy.counter = stateCopy.counter
             return stateCopy
         }
+
+        case 'RES': {
+            const stateCopy = {...state} 
+            stateCopy.counter = stateCopy.minValue
+            return stateCopy
+        }
+        
+        case 'SET': {
+            const stateCopy = {...state} 
+            stateCopy.counter = stateCopy.minValue
+            return stateCopy
+        }
+
         case 'CHANGE-MAX-VALUE': {
             const stateCopy = {...state}
-            if (+action.e.currentTarget.value <= stateCopy.minValue)  stateCopy.invalid = true
-            else  {
-                stateCopy.invalid = false
-                stateCopy.maxValue = +action.e.currentTarget.value
-            }
+            stateCopy.maxValue = action.newMaxValue
             return stateCopy
         }
         case 'CHANGE-MIN-VALUE': {
             const stateCopy = {...state}
-            if (+action.e.currentTarget.value >= stateCopy.maxValue)  stateCopy.invalid = true 
-            else {
-                stateCopy.invalid = false
-                stateCopy.minValue = +action.e.currentTarget.value
-            }
+            stateCopy.minValue = action.newMinValue
             return stateCopy
         }
 
-        case 'GET-LOCAL-STORAGE': {
+        case 'CHANGE-COUNTER-VALUE': {
             const stateCopy = {...state}
-            let counterAsString = localStorage.getItem('counter')
-            let maxValueAsString = localStorage.getItem('maxValue')
-            let minValueAsString = localStorage.getItem('minValue')
-            let modeValueAsString = localStorage.getItem('modeValue')
-            if (counterAsString) {
-                let newValue = JSON.parse(counterAsString)
-                stateCopy.counter = newValue
-            }
-
-            if (maxValueAsString) {
-                let newMaxValue = JSON.parse(maxValueAsString)
-                stateCopy.maxValue = newMaxValue
-            }
-            
-            if (minValueAsString) {
-                let newMinValue = JSON.parse(minValueAsString)
-                stateCopy.minValue = newMinValue
-            }
-
-            if (modeValueAsString) {
-                let newModeValue = JSON.parse(modeValueAsString)
-                stateCopy.mode = newModeValue
-            }
+            stateCopy.counter = action.newCounterValue
             return stateCopy
         }
 
@@ -102,18 +73,26 @@ export const reducer = (state: CounterType = initialState, action: ActionsType):
     }
 }
 
-export const clickAC = (buttonValue: string): ClickActionType => {
-    return { type: 'CLICK', buttonValue}
+export const incAC = (): IncActionType => {
+    return { type: 'INC'}
 }
 
-export const changeMaxValueAC = (e: ChangeEvent<HTMLInputElement>): ChangeMaxValueActionType => {
-    return { type: 'CHANGE-MAX-VALUE', e}
+export const resAC = (): ResActionType => {
+    return { type: 'RES'}
 }
 
-export const changeMinValueAC = (e: ChangeEvent<HTMLInputElement>): ChangeMinValueActionType => {
-    return { type: 'CHANGE-MIN-VALUE', e}
+export const setAC = (): SetActionType => {
+    return { type: 'SET'}
 }
 
-export const getLocalStorageAC = (): GetLocalStorageActionType => {
-    return { type: 'GET-LOCAL-STORAGE'}
+export const changeMaxValueAC = (newMaxValue: number): ChangeMaxValueActionType => {
+    return { type: 'CHANGE-MAX-VALUE', newMaxValue}
+}
+
+export const changeMinValueAC = (newMinValue: number): ChangeMinValueActionType => {
+    return { type: 'CHANGE-MIN-VALUE', newMinValue}
+}
+
+export const changeCounterValueAC = (newCounterValue: number): ChangeCounterValueActionType => {
+    return { type: 'CHANGE-COUNTER-VALUE', newCounterValue}
 }
