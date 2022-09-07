@@ -1,10 +1,13 @@
-import { ChangeEvent } from "react";
 import { CounterType } from "../../AppWithRedux";
 
 
 export type IncActionType = { type: 'INC' }
 export type ResActionType = { type: 'RES' }
-export type SetActionType = { type: 'SET' }
+export type SetActionType = { 
+    type: 'SET' 
+    min: number
+    max: number
+}
 
 export type ChangeMaxValueActionType = {
     type: 'CHANGE-MAX-VALUE'
@@ -33,39 +36,47 @@ type ActionsType = IncActionType | ResActionType | SetActionType | ChangeMaxValu
 export const reducer = (state: CounterType = initialState, action: ActionsType): CounterType => {
     switch(action.type) {
         case 'INC': {
-            const stateCopy = {...state}
-            if (stateCopy.counter < stateCopy.maxValue) stateCopy.counter = stateCopy.counter + 1
-            else stateCopy.counter = stateCopy.counter
-            return stateCopy
+            return {
+                ...state,
+                counter: state.counter + 1
+            }
         }
 
         case 'RES': {
-            const stateCopy = {...state} 
-            stateCopy.counter = stateCopy.minValue
-            return stateCopy
+            return {
+                ...state,
+                counter: state.minValue
+            }
         }
         
         case 'SET': {
-            const stateCopy = {...state} 
-            stateCopy.counter = stateCopy.minValue
-            return stateCopy
+            return {
+                ...state, 
+                counter: action.min,
+                minValue: action.min,
+                maxValue: action.max
+            }
         }
 
         case 'CHANGE-MAX-VALUE': {
-            const stateCopy = {...state}
-            stateCopy.maxValue = action.newMaxValue
-            return stateCopy
+            return {
+                ...state,
+                maxValue: action.newMaxValue
+            }
         }
+
         case 'CHANGE-MIN-VALUE': {
-            const stateCopy = {...state}
-            stateCopy.minValue = action.newMinValue
-            return stateCopy
+            return {
+                ...state,
+                minValue: action.newMinValue
+            }
         }
 
         case 'CHANGE-COUNTER-VALUE': {
-            const stateCopy = {...state}
-            stateCopy.counter = action.newCounterValue
-            return stateCopy
+            return {
+                ...state,
+                counter: action.newCounterValue
+            }
         }
 
         default:
@@ -81,8 +92,8 @@ export const resAC = (): ResActionType => {
     return { type: 'RES'}
 }
 
-export const setAC = (): SetActionType => {
-    return { type: 'SET'}
+export const setAC = (min: number, max: number): SetActionType => {
+    return { type: 'SET', min, max}
 }
 
 export const changeMaxValueAC = (newMaxValue: number): ChangeMaxValueActionType => {

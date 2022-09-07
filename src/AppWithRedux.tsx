@@ -5,7 +5,6 @@ import { Set } from './components/set/Set';
 import { changeCounterValueAC, changeMaxValueAC, changeMinValueAC, incAC, resAC, setAC } from './store/reducers/reducer';
 import { AppRootStateType } from './store/store';
 
-
 export type CounterType = {
   counter: number,
   minValue: number,
@@ -16,33 +15,18 @@ export function AppWithRedux() {
   const counter = useSelector<AppRootStateType, number>(state => state.counter)
   const minValue = useSelector<AppRootStateType, number>(state => state.minValue)
   const maxValue = useSelector<AppRootStateType, number>(state => state.maxValue)
-  const [invalid, setInvalid] = useState(false)
   const [editMode, setEditMode] = useState(false)
   const dispatch = useDispatch()
   
-  const changeMaxValue = (e: ChangeEvent<HTMLInputElement>) => {
-    if (+e.currentTarget.value <= minValue)  setInvalid(true)
-    else  {
-      setInvalid(false)
-      let newMaxValue = +e.currentTarget.value
-      dispatch(changeMaxValueAC(newMaxValue))
-    }
-  }
+  const inc = useCallback(() => {
+    if (counter < maxValue) dispatch(incAC())
+    else dispatch(changeCounterValueAC(counter))
+  }, [])
 
-  const changeMinValue = (e: ChangeEvent<HTMLInputElement>) => {
-    if (+e.currentTarget.value >= maxValue)  setInvalid(true) 
-    else {
-      setInvalid(false) 
-      let newMinValue = +e.currentTarget.value
-      dispatch(changeMinValueAC(newMinValue))
-    }
-  }
-
-  const inc = useCallback(() => dispatch(incAC()), [])
   const res = useCallback(() => dispatch(resAC()), [])
   const toSet = useCallback(() => setEditMode(true), [])
-  const set = useCallback(() => {
-    dispatch(setAC())
+  const set = useCallback((min: number, max: number) => {
+    dispatch(setAC(min, max))
     setEditMode(false)
   }, [])
 
@@ -50,7 +34,6 @@ export function AppWithRedux() {
     let counterAsString = localStorage.getItem('counter')
     let maxValueAsString = localStorage.getItem('maxValue')
     let minValueAsString = localStorage.getItem('minValue')
-    let modeValueAsString = localStorage.getItem('modeValue')
 
     if (counterAsString) {
       let newCounterValue = JSON.parse(counterAsString)
@@ -66,42 +49,31 @@ export function AppWithRedux() {
       let newMinValue = JSON.parse(minValueAsString)
       dispatch(changeMinValueAC(newMinValue))
     }
-    if (modeValueAsString) {
-      let newModeValue = JSON.parse(modeValueAsString)
-      setEditMode(newModeValue) 
-    }
+  
     }, [])
 
   useEffect(() => {
     localStorage.setItem('counter', JSON.stringify(counter)) 
     localStorage.setItem('maxValue', JSON.stringify(maxValue))  
-    localStorage.setItem('minValue', JSON.stringify(minValue))
-    localStorage.setItem('modeValue', JSON.stringify(editMode))       
-  }, [counter, maxValue, minValue, editMode])
-
+    localStorage.setItem('minValue', JSON.stringify(minValue))  
+  }, [counter, maxValue, minValue])
 
   return editMode 
   ? 
     <Set 
-    counter={counter}   
-    minValue={minValue}
-    maxValue={maxValue}
-    invalid={invalid}
-    changeMaxValue={changeMaxValue} 
-    changeMinValue={changeMinValue} 
-    set={set}
+      counter={counter}   
+      minValue={minValue}
+      maxValue={maxValue}
+      set={set}
     />
   :  
     <Counter 
-        counter={counter} 
-        minValue={minValue}
-        maxValue={maxValue}
-        invalid={invalid}
-        toSet={toSet}
-        res={res}
-        inc={inc}
-        changeMaxValue={changeMaxValue} 
-        changeMinValue={changeMinValue} 
-      />
+      counter={counter} 
+      minValue={minValue}
+      maxValue={maxValue}
+      toSet={toSet}
+      res={res}
+      inc={inc} 
+    />
 }
 
